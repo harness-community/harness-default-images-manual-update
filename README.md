@@ -2,6 +2,14 @@
 
 a harness pipeline for manually managing default pipeline images
 
+the terraform will load in the latest default images and tags, allowing quick modification (adding internal domain or tags)
+
+you should leverage inputsets to save your modifications for future use
+
+to reset everything back to default, simply set `reset` to `true`
+
+<img width="1900" height="1812" alt="image" src="https://github.com/user-attachments/assets/078c5c3b-2206-4680-a053-fafd162cbe0d" />
+
 ## Requirements
 
 No requirements.
