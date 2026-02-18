@@ -1,0 +1,28 @@
+variable "org_id" {
+  type        = string
+  description = "Organization ID"
+}
+
+variable "project_id" {
+  type        = string
+  description = "Project ID"
+}
+
+variable "api_key" {
+  type        = string
+  description = "Harness API Key"
+  sensitive = true
+}
+
+variable "api_key_harness_secret_id" {
+  type        = string
+  description = "Harness Secret ID for API Key"
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags for the pipeline"
+  default = {
+    "source" = "terraform"
+  }
+}
