@@ -10,7 +10,7 @@ data "harness_platform_current_account" "current" {}
 
 # get default images for each module
 data "http" "default" {
-  for_each = toset(["ci", "idp", "iacm-manager"])
+  for_each = toset(var.modules)
   url      = "${data.harness_platform_current_account.current.endpoint}/${each.key}/execution-config/get-default-config?accountIdentifier=${data.harness_platform_current_account.current.id}&infra=k8"
 
   request_headers = {
@@ -19,9 +19,16 @@ data "http" "default" {
   }
 }
 
+locals {
+  default_images = { for module in var.modules : module => {
+    for k, v in jsondecode(data.http.default[module].response_body).data : k => v
+    if !contains(var.exclude_images, k)
+  } }
+}
+
 # create pipeline for each module
 resource "harness_platform_pipeline" "default_images_manual_update" {
-  for_each = toset(["ci", "idp", "iacm-manager"])
+  for_each = toset(var.modules)
 
   org_id     = var.org_id
   project_id = var.project_id
@@ -44,7 +51,9 @@ resource "harness_platform_pipeline" "default_images_manual_update" {
       # Pipeline Inputs
       SECRET_ID : var.api_key_harness_secret_id
       MODULE : each.key
-      DEFAULT_IMAGES : jsondecode(data.http.default[each.key].response_body).data
+      DEFAULT_IMAGES : local.default_images[each.key]
+      SET_IMAGES : jsonencode([for image, value in local.default_images[each.key] : { "field" : image, "value" : value }])
+      RESET_IMAGES : jsonencode([for image, _ in local.default_images[each.key] : { "field" : image }])
 
       TAGS : yamlencode(var.tags)
     }

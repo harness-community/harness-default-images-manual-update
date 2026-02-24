@@ -37,7 +37,10 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| api\_key | Harness API Key | `string` | n/a | yes |
 | api\_key\_harness\_secret\_id | Harness Secret ID for API Key | `string` | n/a | yes |
+| exclude\_images | Images to exclude from the pipeline | `list(string)` | <pre>[<br/>  "iacmAnsible",<br/>  "iacmAwsCdk",<br/>  "iacmCheckov",<br/>  "iacmModuleTest",<br/>  "iacmOpenTofu",<br/>  "iacmTFCompliance",<br/>  "iacmTFLint",<br/>  "iacmTFSec",<br/>  "iacmTerraform",<br/>  "iacmTerragrunt"<br/>]</pre> | no |
+| modules | Modules to create pipelines for | `list(string)` | <pre>[<br/>  "ci",<br/>  "idp",<br/>  "iacm-manager"<br/>]</pre> | no |
 | org\_id | Organization ID | `string` | n/a | yes |
 | project\_id | Project ID | `string` | n/a | yes |
 | tags | Tags for the pipeline | `map(string)` | <pre>{<br/>  "source": "terraform"<br/>}</pre> | no |

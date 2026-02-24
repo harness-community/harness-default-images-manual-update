@@ -21,7 +21,7 @@ pipeline:
                     name: update default
                     identifier: update_default
                     spec:
-                      url: https://app.harness.io/gateway/${MODULE}/execution-config/get-default-config?accountIdentifier=<+account.identifier>&infra=k8
+                      url: https://app.harness.io/gateway/${MODULE}/execution-config/update-config?accountIdentifier=<+account.identifier>&infra=<+pipeline.variables.infra>
                       method: POST
                       headers:
                       - key: Content-Type
@@ -31,14 +31,8 @@ pipeline:
                       inputVariables: []
                       outputVariables: []
                       requestBody: |
-                        [
-%{ for image, value in DEFAULT_IMAGES ~}
-                          {
-                              "field": "${ image }",
-                              "value": "<+pipeline.variables.${ image }>"
-                          },
-%{ endfor ~}
-                        ]
+                        ${SET_IMAGES}
+                      assertion: <+httpResponseCode> == 200
                     timeout: 10s
                     when:
                         stageStatus: Success
@@ -48,7 +42,7 @@ pipeline:
                     name: reset default
                     identifier: reset_default
                     spec:
-                      url: https://app.harness.io/gateway/${MODULE}/execution-config/reset-config?accountIdentifier=<+account.identifier>&infra=k8
+                      url: https://app.harness.io/gateway/${MODULE}/execution-config/reset-config?accountIdentifier=<+account.identifier>&infra=<+pipeline.variables.infra>
                       method: POST
                       headers:
                       - key: Content-Type
@@ -58,19 +52,19 @@ pipeline:
                       inputVariables: []
                       outputVariables: []
                       requestBody: |
-                        [
-%{ for image, value in DEFAULT_IMAGES ~}
-                            {
-                              "field": "${ image }"
-                            },
-%{ endfor ~}
-                        ]
+                        ${RESET_IMAGES}
+                      assertion: <+httpResponseCode> == 200
                     timeout: 10s
                     when:
                         stageStatus: Success
                         condition: <+pipeline.variables.reset>
         tags: {}
   variables:
+    - name: infra
+      type: String
+      description: "pipeline infrastructure type for changing defaults"
+      required: true
+      value: <+input>.default(K8).selectOneFrom(K8,VM)
     - name: reset
       type: String
       description: "reset all images to harness defaults"
