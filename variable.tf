@@ -8,12 +8,6 @@ variable "project_id" {
   description = "Project ID"
 }
 
-variable "api_key" {
-  type        = string
-  description = "Harness API Key"
-  sensitive   = true
-}
-
 variable "api_key_harness_secret_id" {
   type        = string
   description = "Harness Secret ID for API Key"
@@ -30,7 +24,7 @@ variable "tags" {
 variable "modules" {
   type        = list(string)
   description = "Modules to create pipelines for"
-  default     = ["ci", "idp", "iacm-manager"]
+  default     = ["ci", "idp", "iacm"]
 }
 
 variable "exclude_images" {

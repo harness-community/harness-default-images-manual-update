@@ -8,20 +8,14 @@ terraform {
 
 data "harness_platform_current_account" "current" {}
 
-# get default images for each module
-data "http" "default" {
+data "harness_platform_default_images" "default" {
   for_each = toset(var.modules)
-  url      = "${data.harness_platform_current_account.current.endpoint}/${each.key}/execution-config/get-default-config?accountIdentifier=${data.harness_platform_current_account.current.id}&infra=k8"
-
-  request_headers = {
-    Accept      = "application/json"
-    "x-api-key" = var.api_key
-  }
+  kind     = each.key
 }
 
 locals {
   default_images = { for module in var.modules : module => {
-    for k, v in jsondecode(data.http.default[module].response_body).data : k => v
+    for k, v in data.harness_platform_default_images.default[module].images : k => v
     if !contains(var.exclude_images, k)
   } }
 }
@@ -50,7 +44,7 @@ resource "harness_platform_pipeline" "default_images_manual_update" {
 
       # Pipeline Inputs
       SECRET_ID : var.api_key_harness_secret_id
-      MODULE : each.key
+      MODULE : each.key == "iacm" ? "iacm-manager" : each.key
       DEFAULT_IMAGES : local.default_images[each.key]
       SET_IMAGES : jsonencode([for image, value in local.default_images[each.key] : { "field" : image, "value" : value }])
       RESET_IMAGES : jsonencode([for image, _ in local.default_images[each.key] : { "field" : image }])
