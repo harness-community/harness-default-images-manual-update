@@ -46,8 +46,8 @@ resource "harness_platform_pipeline" "default_images_manual_update" {
       SECRET_ID : var.api_key_harness_secret_id
       MODULE : each.key == "iacm" ? "iacm-manager" : each.key
       DEFAULT_IMAGES : local.default_images[each.key]
-      SET_IMAGES : jsonencode([for image, value in local.default_images[each.key] : { "field" : image, "value" : value }])
-      RESET_IMAGES : jsonencode([for image, _ in local.default_images[each.key] : { "field" : image }])
+      SET_IMAGES : replace(replace(jsonencode([for image, value in local.default_images[each.key] : { "field" : image, "value" : "<+pipeline.variables.${image}>" }]), "\\u003c", "<"), "\\u003e", ">")
+      RESET_IMAGES : replace(replace(jsonencode([for image, _ in local.default_images[each.key] : { "field" : image }]), "\\u003c", "<"), "\\u003e", ">")
 
       TAGS : yamlencode(var.tags)
     }
